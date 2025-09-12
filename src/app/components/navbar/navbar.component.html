@@ -1,0 +1,40 @@
+<nav class="navbar navbar-expand-lg shadow-sm py-2" 
+     style="background: linear-gradient(90deg, #08244d, #343a40);">
+  <div class="container-fluid">
+
+    <!-- Brand -->
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="assets/6909.jpg" 
+           alt="Employee Management Logo" 
+           style="height: 42px; width: 42px; object-fit: cover;" 
+           class="me-2 rounded-circle border border-2 border-white shadow-sm">
+
+      <span style="font-size: 1.6rem; font-weight: 700; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; color: white;">
+        Employee <span style="color:#ddd3b1;">Management</span>
+      </span>
+    </a>
+
+    <!-- Right Side Buttons (if NOT logged in) -->
+    <div class="d-flex gap-2 align-items-center ms-auto" *ngIf="!auth.isLoggedIn()">
+      <a class="btn btn-light px-4 fw-semibold shadow-sm" routerLink="/home" 
+         style="color: #0d6efd; border-radius: 30px;">
+        Home
+      </a>
+      <a class="btn btn-warning px-4 fw-semibold shadow-sm" routerLink="/login" 
+         style="border-radius: 30px; color:#343a40;">
+        Login
+      </a>
+    </div>
+
+    <!-- User Info & Logout (if logged in) -->
+    <div class="d-flex align-items-center ms-auto gap-2" *ngIf="auth.isLoggedIn()">
+      <span class="text-white small fw-semibold me-2 d-none d-md-inline">
+        <i class="bi bi-person-circle me-1"></i>
+        {{ auth.session?.org_name }} <span class="text-info">|</span> {{ auth.session?.email }}
+      </span>
+      <button class="btn btn-danger btn-sm px-3 fw-semibold shadow-sm rounded-pill" (click)="logout()">
+        Logout
+      </button>
+    </div>
+  </div>
+</nav>

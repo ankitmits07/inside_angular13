@@ -1,0 +1,10 @@
+{
+  "/api": {
+    "target": "http://localhost/ci4_api",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": ""
+    }
+  }
+}

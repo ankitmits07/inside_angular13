@@ -1,0 +1,36 @@
+<div *ngIf="!auth.isLoggedIn()" class="text-center p-5">
+  <h3>Welcome to Project1</h3>
+  <p>Please <a routerLink="/login">login</a> to continue.</p>
+</div>
+
+<div *ngIf="auth.isLoggedIn()" class="row g-0 me-0">
+<div class="container-fluid mt-4">
+  <div class="row">
+    <!-- Sidebar (already col-3) -->
+    <div class="col-md-2">
+      <app-sidebar (moduleChange)="onModuleChange($event)"></app-sidebar>
+    </div>
+
+
+  <!-- Main Content -->
+  <div class="col-md-6 col-lg-8 p-4">
+    <!-- Employee -->
+    <div *ngIf="activeModule === 'employee'" 
+         class="animate__animated animate__fadeIn">
+      <app-candidate-wizard></app-candidate-wizard>
+    </div>
+
+    <!-- Timesheet -->
+    <div *ngIf="activeModule === 'timesheet'" 
+         class="animate__animated animate__fadeIn">
+      <app-timesheet></app-timesheet>
+   
+    </div>
+
+    <!-- Another -->
+    <div *ngIf="activeModule === 'another'" 
+         class="animate__animated animate__fadeIn">
+      <h4>Another Module Content</h4>
+    </div>
+  </div>
+</div>
