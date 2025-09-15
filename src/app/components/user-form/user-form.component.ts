@@ -171,49 +171,49 @@ export class UserFormComponent implements OnInit {
     return this.isStepValid(1) && this.isStepValid(2) && this.isStepValid(3);
   }
 
-  onSubmit(): void {
-    if (!this.isFormValid()) {
-      this.backendErrors = {
-        general: 'Please complete all required fields before submitting.'
-      };
-      return;
-    }
-
-    this.isLoading = true;
-    this.resetMessages();
-
-    const formValues = this.userForm.value;
-    const formData = new FormData();
-
-    formData.append('name', formValues.name || '');
-    formData.append('email', formValues.email || '');
-    formData.append('password', formValues.password || '');
-
-  const countryName = formValues.country ? formValues.country.country_name : '';
-formData.append('country', countryName);
-
-const stateName = formValues.state ? formValues.state.state_name : '';
-formData.append('state', stateName);
-
-let cityName = '';
-if (this.cities && this.cities.length > 0) {
-  if (formValues.city && typeof formValues.city === 'object') {
-    cityName = formValues.city.city_name;
-  } else {
-    cityName = formValues.city || '';
+onSubmit(): void {
+  if (!this.isFormValid()) {
+    this.backendErrors = {
+      general: 'Please complete all required fields before submitting.'
+    };
+    return;
   }
-} else {
-  cityName = formValues.city || '';
-}
-formData.append('city', cityName);
+
+  this.isLoading = true;
+  this.resetMessages();
+
+  const formValues = this.userForm.value;
+  const formData = new FormData();
+
+  formData.append('name', formValues.name || '');
+  formData.append('email', formValues.email || '');
+  formData.append('password', formValues.password || '');
 
 
-    formData.append('pincode', formValues.pincode || '');
-    formData.append('phone', formValues.phone || '');
+  const countryValue = formValues.country ? formValues.country.country_name : '';
+  formData.append('country', countryValue);
 
-    if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
+  const stateValue = formValues.state ? formValues.state.state_name : '';
+  formData.append('state', stateValue);
+
+  let cityValue = '';
+  if (this.cities && this.cities.length > 0) {
+    if (formValues.city && typeof formValues.city === 'object') {
+      cityValue = formValues.city.city_name;
+    } else {
+      cityValue = formValues.city || '';
     }
+  } else {
+    cityValue = formValues.city || '';
+  }
+  formData.append('city', cityValue);
+
+  formData.append('pincode', formValues.pincode || '');
+  formData.append('phone', formValues.phone || '');
+
+  if (this.selectedFile) {
+    formData.append('image', this.selectedFile);
+  }
 
     this.userFormService.createUser(formData).subscribe(
       (response: any) => {

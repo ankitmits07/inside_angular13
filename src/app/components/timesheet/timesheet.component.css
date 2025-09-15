@@ -1,6 +1,27 @@
+/* ================= General Container ================= */
+.view-container {
+  max-width: 900px;
+  height: 90vh; /* Almost full viewport height */
+  margin: 20px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden; /* Prevent page scroll */
+}
+
+/* Scrollable content for each view */
+.view-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px; /* Space for scrollbar */
+}
+
+/* ================= Calendar ================= */
 .calendar-container {
   max-width: 500px;
-  max-height: 90vh;
   margin: auto;
 }
 
@@ -13,6 +34,11 @@
 .calendar-day {
   transition: all 0.2s ease-in-out;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 60px;
 }
 
 .calendar-day:hover {
@@ -25,48 +51,22 @@
   font-size: 12px;
 }
 
-/* .circular-chart {
-  max-width: 80%;
+/* ================= Tasks / Table ================= */
+.table-scroll {
+  max-height: 250px; /* Scrollable table */
+  overflow-y: auto;
 }
 
-.circle-bg {
-  fill: none;
-  stroke: #eee;
-  stroke-width: 3.8;
+.table-scroll table {
+  margin-bottom: 0;
 }
 
-.circle {
-  fill: none;
-  stroke-width: 2.8;
-  stroke-linecap: round;
-}
-
-.circle.pending {
-  stroke: orange;
-}
-
-.circle.complete {
-  stroke: green;
-}
-
-.circle.overdue {
-  stroke: red;
-} */
-
-.percentage {
-  font-size: 0.5em;
-  text-anchor: middle;
-  fill: #333;
-}
-
-
-
-/* Circular chart styling */
+/* ================= Circular Graph ================= */
 .circular-chart {
   display: block;
   margin: 0 auto;
-  max-width: 100%;
-  max-height: 250px;
+  max-width: 140px;
+  max-height: 140px;
 }
 
 .circle-bg {
@@ -90,6 +90,30 @@
 
 .percentage {
   fill: #666;
-  font-size: 0.5em;
+  font-size: 0.7em;
   text-anchor: middle;
+}
+
+/* ================= Modern Buttons ================= */
+.btn {
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* ================= Responsive Adjustments ================= */
+@media (max-width: 768px) {
+  .calendar-day {
+    min-height: 50px;
+    font-size: 12px;
+  }
+  
+  .circular-chart {
+    max-width: 100px;
+    max-height: 100px;
+  }
 }

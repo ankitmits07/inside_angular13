@@ -37,6 +37,7 @@ export class TimesheetComponent implements OnInit {
 
   // Add statusTypes property
   statusTypes: string[] = ['pending', 'complete', 'overdue'];
+filteredGraphStatus: 'all' | 'pending' | 'complete' | 'overdue' = 'all';
 
   constructor(
     private fb: FormBuilder, 
@@ -287,16 +288,21 @@ formatDateToYMD(date: Date): string {
   }
 
   // Filter tasks by status
-  filterTasks(status: string) {
-    console.log('Filtering tasks by status:', status);
-    if (status === 'all') {
-      this.filteredTasks = [...this.tasks];
-    } else {
-      this.filteredTasks = this.tasks.filter(t => t.status === status);
-    }
-    console.log('Filtered tasks:', this.filteredTasks);
-    this.cdRef.detectChanges();
+filterTasks(status: 'all' | 'pending' | 'complete' | 'overdue') {
+  console.log('Filtering tasks by status:', status);
+
+  this.filteredGraphStatus = status;
+
+  if (status === 'all') {
+    this.filteredTasks = [...this.tasks];
+  } else {
+    this.filteredTasks = this.tasks.filter(t => t.status === status);
   }
+
+  console.log('Filtered tasks:', this.filteredTasks);
+  this.cdRef.detectChanges();
+}
+
 
   resetFilter() {
     this.filteredTasks = [...this.tasks];
@@ -447,6 +453,11 @@ checkAllLogins() {
       console.error('Error checking login records:', error);
     }
   });
+
+}
+// In timesheet.component.ts
+canShowStatusGraph(status: string): boolean {
+  return this.filteredGraphStatus === 'all' || this.filteredTasks.some(t => t.status === status);
 }
 
 }

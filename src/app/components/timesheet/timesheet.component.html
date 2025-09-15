@@ -1,85 +1,148 @@
 <!-- ================= Calendar View ================= -->
-<div *ngIf="view === 'calendar'" class="calendar-container shadow rounded bg-white p-4 mx-auto" style="max-width: 800px;">
-
+<div
+  *ngIf="view === 'calendar'"
+  class="calendar-container shadow rounded bg-white p-4 mx-auto"
+  style="max-width: 800px"
+>
   <!-- Header -->
-  <div class="calendar-header d-flex flex-column flex-md-row align-items-center justify-content-between mb-3">
+  <div
+    class="calendar-header d-flex flex-column flex-md-row align-items-center justify-content-between mb-3"
+  >
     <div class="d-flex align-items-center mb-2 mb-md-0">
-      <button class="btn btn-outline-dark btn-sm me-2" (click)="prevMonth()">‹</button>
+      <button class="btn btn-outline-dark btn-sm me-2" (click)="prevMonth()">
+        ‹
+      </button>
       <span class="h5 mb-0 text-primary">{{ months[currentMonth] }}</span>
-      <button class="btn btn-outline-dark btn-sm ms-2" (click)="nextMonth()">›</button>
+      <button class="btn btn-outline-dark btn-sm ms-2" (click)="nextMonth()">
+        ›
+      </button>
     </div>
 
     <div class="year-picker d-flex align-items-center">
-      <button class="btn btn-outline-dark btn-sm me-2" [disabled]="currentYear <= minYear" (click)="prevYear()">‹</button>
+      <button
+        class="btn btn-outline-dark btn-sm me-2"
+        [disabled]="currentYear <= minYear"
+        (click)="prevYear()"
+      >
+        ‹
+      </button>
       <span class="fw-bold fs-6 text-dark">{{ currentYear }}</span>
-      <button class="btn btn-outline-dark btn-sm ms-2" [disabled]="currentYear >= maxYear" (click)="nextYear()">›</button>
+      <button
+        class="btn btn-outline-dark btn-sm ms-2"
+        [disabled]="currentYear >= maxYear"
+        (click)="nextYear()"
+      >
+        ›
+      </button>
     </div>
   </div>
 
   <!-- Week Days -->
-  <div class="d-flex text-center fw-bold border-bottom pb-2 mb-2 bg-light rounded">
+  <div
+    class="d-flex text-center fw-bold border-bottom pb-2 mb-2 bg-light rounded"
+  >
     <div class="flex-fill py-1" *ngFor="let d of weekDays">{{ d }}</div>
   </div>
 
   <!-- Days Grid -->
-  <div class="calendar-days d-flex flex-wrap" style="gap: 4px;">
-    <div *ngFor="let day of monthDays"
-         class="calendar-day flex-fill text-center border rounded position-relative"
-         [ngClass]="{ 
-           'bg-primary text-white fw-bold': isToday(day.date),
-           'text-muted': !canHover(day.date)
-         }"
-         (mouseenter)="hoverDate(day)"
-         (mouseleave)="hoverDate(null)"
-         [title]="day.log && canHover(day.date) ? 'Org: ' + day.log.org_id + '\nLogin: ' + day.log.login_time : ''"
-         style="width: calc(100%/7 - 4px); padding: 10px; font-size: 14px; cursor: pointer;">
-
-      {{ isValidDate(day.date) ? day.date.getDate() : '' }}
+  <div class="calendar-days d-flex flex-wrap" style="gap: 4px">
+    <div
+      *ngFor="let day of monthDays"
+      class="calendar-day flex-fill text-center border rounded position-relative"
+      [ngClass]="{
+        'bg-primary text-white fw-bold': isToday(day.date),
+        'text-muted': !canHover(day.date)
+      }"
+      (mouseenter)="hoverDate(day)"
+      (mouseleave)="hoverDate(null)"
+      [title]="
+        day.log && canHover(day.date)
+          ? 'Org: ' + day.log.org_id + '\nLogin: ' + day.log.login_time
+          : ''
+      "
+      style="
+        width: calc(100% / 7 - 4px);
+        padding: 10px;
+        font-size: 14px;
+        cursor: pointer;
+      "
+    >
+      {{ isValidDate(day.date) ? day.date.getDate() : "" }}
 
       <!-- Marker dot -->
-      <div *ngIf="day.log && canHover(day.date)" 
-           style="width:6px;height:6px;background:#28a745;border-radius:50%;margin:4px auto 0;">
-      </div>
+      <div
+        *ngIf="day.log && canHover(day.date)"
+        style="
+          width: 6px;
+          height: 6px;
+          background: #28a745;
+          border-radius: 50%;
+          margin: 4px auto 0;
+        "
+      ></div>
     </div>
   </div>
 
   <!-- Footer Info -->
-<div class="calendar-footer text-center mt-3 p-2 border rounded bg-light" style="font-size: 14px;">
-  <ng-container *ngIf="hoveredLog; else hoverDefault">
-    <div><strong>🏢 Org ID:</strong> {{ hoveredLog.org_id }}</div>
-    <div><strong>📅 Login Time:</strong> {{ hoveredLog.login_time | date:'medium' }}</div>
-    <div><strong>🚪 Logout Time:</strong> {{ hoveredLog.logout_time | date:'medium' }}</div>
-    <div><small class="text-muted">Calendar ID: {{ hoveredLog.calendar_id }}</small></div>
-  </ng-container>
-  <ng-template #hoverDefault>
-    <div class="text-muted">
-      <div>✨ Hover over a past/today date to see details</div>
-      <div *ngIf="hasLoginRecords === false" class="text-warning small mt-1">
-        No login records found for your organization
+  <div
+    class="calendar-footer text-center mt-3 p-2 border rounded bg-light"
+    style="font-size: 14px"
+  >
+    <ng-container *ngIf="hoveredLog; else hoverDefault">
+      <div><strong>🏢 Org ID:</strong> {{ hoveredLog.org_id }}</div>
+      <div>
+        <strong>📅 Login Time:</strong>
+        {{ hoveredLog.login_time | date : "medium" }}
       </div>
-    </div>
-  </ng-template>
-</div>
-
-
+      <div>
+        <strong>🚪 Logout Time:</strong>
+        {{ hoveredLog.logout_time | date : "medium" }}
+      </div>
+      <div>
+        <small class="text-muted"
+          >Calendar ID: {{ hoveredLog.calendar_id }}</small
+        >
+      </div>
+    </ng-container>
+    <ng-template #hoverDefault>
+      <div class="text-muted">
+        <div>✨ Hover over a past/today date to see details</div>
+        <div *ngIf="hasLoginRecords === false" class="text-warning small mt-1">
+          No login records found for your organization
+        </div>
+      </div>
+    </ng-template>
+  </div>
 
   <!-- Navigation Button -->
   <div class="d-flex justify-content-center mt-3">
-    <button class="btn btn-success px-3 py-2 shadow-sm" style="border-radius: 8px;" (click)="view='todo'">
+    <button
+      class="btn btn-success px-3 py-2 shadow-sm"
+      style="border-radius: 8px"
+      (click)="view = 'todo'"
+    >
       Next → To-Do List
     </button>
   </div>
 </div>
 
 <!-- ================= To-Do List View ================= -->
-<div *ngIf="view === 'todo'" class="p-4 shadow rounded bg-white mx-auto" style="max-width: 900px;">
+<div
+  *ngIf="view === 'todo'"
+  class="p-4 shadow rounded bg-white mx-auto"
+  style="max-width: 900px"
+>
   <h3 class="mb-4 text-center">📝 Manage Tasks</h3>
 
   <!-- Task Form -->
   <form [formGroup]="form" (ngSubmit)="saveTask()" class="row g-3 mb-4">
     <div class="col-md-4">
       <label class="form-label fw-bold">Task Name</label>
-      <input class="form-control" formControlName="task_name" placeholder="Enter task name" />
+      <input
+        class="form-control"
+        formControlName="task_name"
+        placeholder="Enter task name"
+      />
     </div>
     <div class="col-md-3">
       <label class="form-label fw-bold">Assign Date</label>
@@ -107,13 +170,19 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let t of filteredTasks; let i = index; trackBy: trackByTaskId">
+        <tr
+          *ngFor="let t of filteredTasks; let i = index; trackBy: trackByTaskId"
+        >
           <td>{{ i + 1 }}</td>
           <td>{{ t.task_name }}</td>
           <td>{{ t.assign_date }}</td>
           <td>{{ t.end_date }}</td>
           <td>
-            <select [value]="t.status" (change)="updateStatus(t.id!, $any($event.target).value)" class="form-select">
+            <select
+              [value]="t.status"
+              (change)="updateStatus(t.id!, $any($event.target).value)"
+              class="form-select"
+            >
               <option value="pending">Pending</option>
               <option value="complete">Complete</option>
               <option value="overdue">Overdue</option>
@@ -126,79 +195,89 @@
 
   <!-- Navigation -->
   <div class="d-flex justify-content-between mt-4">
-    <button class="btn btn-secondary px-4" (click)="view = 'calendar'">← Back to Calendar</button>
-    
+    <button class="btn btn-secondary px-4" (click)="view = 'calendar'">
+      ← Back to Calendar
+    </button>
+
     <!-- Add refresh button -->
     <button class="btn btn-info px-4" (click)="refreshView()">
       🔄 Refresh
     </button>
-    
-    <button class="btn btn-primary px-4" (click)="view = 'graph'">Next → Graph</button>
+
+    <button class="btn btn-primary px-4" (click)="view = 'graph'">
+      Next → Graph
+    </button>
   </div>
 </div>
 
 <!-- ================= Graph View ================= -->
-<div *ngIf="view === 'graph'" class="p-4 shadow rounded bg-white text-center mx-auto" style="max-width: 900px;">
+<div
+  *ngIf="view === 'graph'"
+  class="p-4 shadow rounded bg-white text-center mx-auto"
+  style="max-width: 900px"
+>
   <h3>📊 Task Status Overview</h3>
 
   <!-- Filter Buttons -->
   <div class="btn-group my-4 flex-wrap">
-    <button class="btn btn-outline-warning mb-2 me-2" (click)="filterTasks('pending')">Pending</button>
-    <button class="btn btn-outline-success mb-2 me-2" (click)="filterTasks('complete')">Complete</button>
-    <button class="btn btn-outline-danger mb-2 me-2" (click)="filterTasks('overdue')">Overdue</button>
-    <button class="btn btn-outline-primary mb-2 me-2" (click)="filterTasks('all')">All Tasks</button>
-    <button class="btn btn-outline-secondary mb-2" (click)="resetFilter()">Reset Filter</button>
+    <button
+      class="btn btn-outline-warning mb-2 me-2"
+      (click)="filterTasks('pending')"
+    >
+      Pending
+    </button>
+    <button
+      class="btn btn-outline-success mb-2 me-2"
+      (click)="filterTasks('complete')"
+    >
+      Complete
+    </button>
+    <button
+      class="btn btn-outline-danger mb-2 me-2"
+      (click)="filterTasks('overdue')"
+    >
+      Overdue
+    </button>
+    <button
+      class="btn btn-outline-primary mb-2 me-2"
+      (click)="filterTasks('all')"
+    >
+      All Tasks
+    </button>
+  
   </div>
-
-  <!-- Status Summary -->
-<!-- In the Status Summary section -->
-<div class="row mb-4">
-  <div class="col-md-4">
-    <div class="card border-warning">
-      <div class="card-body">
-        <h5 class="card-title text-warning">Pending</h5>
-        <p class="card-text fs-4">{{ pendingCount }} tasks</p>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card border-success">
-      <div class="card-body">
-        <h5 class="card-title text-success">Complete</h5>
-        <p class="card-text fs-4">{{ completeCount }} tasks</p>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card border-danger">
-      <div class="card-body">
-        <h5 class="card-title text-danger">Overdue</h5>
-        <p class="card-text fs-4">{{ overdueCount }} tasks</p>
-      </div>
-    </div>
-  </div>
-</div>
 
   <!-- Graphs -->
-  <div class="row justify-content-center py-3">
-    <div class="col-md-4 d-flex flex-column align-items-center mb-3" *ngFor="let status of ['pending','complete','overdue']">
-      <div class="position-relative" style="width: 140px; height: 140px;">
-        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 140px; height: 140px;">
-          <path class="circle-bg" d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0 -31.831" />
+<div class="row justify-content-center py-3">
+  <ng-container *ngFor="let status of statusTypes">
+    <div
+      class="col-md-4 d-flex flex-column align-items-center mb-3"
+      *ngIf="filteredGraphStatus === 'all' || filteredGraphStatus === status"
+    >
+      <div class="position-relative" style="width: 140px; height: 140px">
+        <svg viewBox="0 0 36 36" class="circular-chart" style="width: 140px; height: 140px">
+          <path class="circle-bg"
+                d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0 -31.831"/>
           <path class="circle" [ngClass]="status"
-                [attr.stroke-dasharray]="(status==='pending'?percentPending:status==='complete'?percentComplete:percentOverdue)+',100'"
-                d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0 -31.831" />
-         <text x="18" y="20.35" class="percentage">
-  {{ status === 'pending' ? percentPending : status === 'complete' ? percentComplete : percentOverdue }}%
-</text>
+                [attr.stroke-dasharray]="
+                  (status === 'pending' ? percentPending :
+                   status === 'complete' ? percentComplete : percentOverdue) + ',100'"
+                d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0 -31.831"/>
+          <text x="18" y="20.35" class="percentage">
+            {{ status === 'pending' ? percentPending :
+               status === 'complete' ? percentComplete : percentOverdue }}%
+          </text>
         </svg>
       </div>
       <p class="mt-2 fw-bold">{{ status | titlecase }}</p>
-<small class="text-muted">
-  {{ status === 'pending' ? pendingCount : status === 'complete' ? completeCount : overdueCount }} of {{ tasks.length }} tasks
-</small>
+      <small class="text-muted">
+        {{ status === 'pending' ? pendingCount :
+           status === 'complete' ? completeCount : overdueCount }}
+        of {{ tasks.length }} tasks
+      </small>
     </div>
-  </div>
+  </ng-container>
+</div>
 
   <!-- Filtered Tasks -->
   <h5 class="mt-4">Filtered Tasks ({{ filteredTasks.length }})</h5>
@@ -214,17 +293,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let t of filteredTasks; let i = index; trackBy: trackByTaskId">
+        <tr
+          *ngFor="let t of filteredTasks; let i = index; trackBy: trackByTaskId"
+        >
           <td>{{ i + 1 }}</td>
           <td>{{ t.task_name }}</td>
           <td>{{ t.assign_date }}</td>
           <td>{{ t.end_date }}</td>
           <td>
-            <span class="badge" [ngClass]="{
-              'bg-warning': t.status === 'pending',
-              'bg-success': t.status === 'complete',
-              'bg-danger': t.status === 'overdue'
-            }">
+            <span
+              class="badge"
+              [ngClass]="{
+                'bg-warning': t.status === 'pending',
+                'bg-success': t.status === 'complete',
+                'bg-danger': t.status === 'overdue'
+              }"
+            >
               {{ t.status | titlecase }}
             </span>
           </td>
@@ -235,6 +319,8 @@
 
   <!-- Navigation -->
   <div class="d-flex justify-content-center mt-4">
-    <button class="btn btn-secondary px-4" (click)="view='todo'">← Back to To-Do</button>
+    <button class="btn btn-secondary px-4" (click)="view = 'todo'">
+      ← Back to To-Do
+    </button>
   </div>
 </div>
