@@ -42,7 +42,7 @@ export class CandidateWizardComponent implements OnInit {
       address: ['', Validators.required],
       country: ['', Validators.required],
       state: ['', Validators.required],
-      city: [''],
+      city: ['',Validators.required],
       pincode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
       img: [null] // optional here
     });
@@ -50,7 +50,12 @@ export class CandidateWizardComponent implements OnInit {
 
   ngOnInit(): void {
     // Load countries
-    this.loc.countries().subscribe(res => this.countries = res);
+    this.loc.countries().subscribe(res => {
+      this.countries = res;
+      
+      // Check for saved progress after countries are loaded
+      this.checkSavedProgress();
+    });
 
     // Get orgId from auth
     const auth = localStorage.getItem('auth');
@@ -78,14 +83,43 @@ export class CandidateWizardComponent implements OnInit {
             state: res.state,
             city: res.city,
             pincode: res.pincode,
-            img: null
+            img: res.img_url
           });
 
-          this.preview = {
-            ...res,
-            image: res.img_url
-          };
-
+          // Load states and cities for the existing candidate
+          if (res.country) {
+            this.loc.states(res.country).subscribe(states => {
+              this.states = states;
+              
+              if (res.state) {
+                this.loc.cities(res.state).subscribe(cities => {
+                  this.cities = cities;
+                  
+                  // Create preview with names
+                  this.updatePreviewWithNames();
+                  
+                  // Set the image from existing candidate
+                  if (res.img_url) {
+                    this.preview.image = res.img_url;
+                  }
+                  this.saveProgress();
+                });
+              } else {
+                this.updatePreviewWithNames();
+                if (res.img_url) {
+                  this.preview.image = res.img_url;
+                }
+                this.saveProgress();
+              }
+            });
+          } else {
+            this.updatePreviewWithNames();
+            if (res.img_url) {
+              this.preview.image = res.img_url;
+            }
+            this.saveProgress();
+          }
+          
           // Go straight to preview
           this.step = 3;
         }
@@ -99,9 +133,89 @@ export class CandidateWizardComponent implements OnInit {
     }
   }
 
+  /** Check for saved progress in localStorage */
+  private checkSavedProgress(): void {
+    const saved = localStorage.getItem('candidate-progress');
+    if (saved) {
+      const progress = JSON.parse(saved);
+      
+      // Restore form values
+      this.form1.patchValue(progress.form1);
+      this.form2.patchValue(progress.form2);
+      
+      // Restore step
+      this.step = progress.step || 1;
+      
+      // Restore preview with image (if it's a data URL or full URL)
+      this.preview = progress.preview || {};
+      
+      // If we're on step 3 or preview has data, load location names
+      if (this.step === 3 || this.preview.country) {
+        this.loadLocationNamesForPreview();
+      }
+      
+      // Load states and cities based on saved country/state
+      if (progress.form2.country) {
+        this.loc.states(progress.form2.country).subscribe(states => {
+          this.states = states;
+          
+          if (progress.form2.state) {
+            this.loc.cities(progress.form2.state).subscribe(cities => {
+              this.cities = cities;
+            });
+          }
+        });
+      }
+    }
+  }
+  
+  /** Load location names for preview */
+  private loadLocationNamesForPreview(): void {
+    const countryId = this.form2.value.country;
+    const stateId = this.form2.value.state;
+    const cityId = this.form2.value.city;
+    
+    if (countryId) {
+      const countryObj = this.countries.find(c => c.id == countryId);
+      this.preview.country_name = countryObj?.country_name || '';
+      
+      if (stateId && this.states.length) {
+        const stateObj = this.states.find(s => s.id == stateId);
+        this.preview.state_name = stateObj?.state_name || '';
+        
+        if (cityId && this.cities.length) {
+          const cityObj = this.cities.find(c => c.id == cityId);
+          this.preview.city_name = cityObj?.city_name || '';
+        }
+      }
+    }
+  }
+  
+  /** Update preview with location names */
+  private updatePreviewWithNames(): void {
+    const countryObj = this.countries.find(c => c.id == this.form2.value.country);
+    const stateObj = this.states.find(s => s.id == this.form2.value.state);
+    const cityObj = this.cities.find(c => c.id == this.form2.value.city);
+
+    this.preview = {
+      ...this.form1.value,
+      ...this.form2.value,
+      country_name: countryObj?.country_name || '',
+      state_name: stateObj?.state_name || '',
+      city_name: cityObj?.city_name || '',
+      image: this.preview.image || null // Preserve the existing image
+    };
+  }
+
   /** Save progress in localStorage */
   private saveProgress(): void {
     if (this.existingCandidate) return;
+    
+    // Update preview with current data before saving
+    if (this.step >= 2) {
+      this.updatePreviewWithNames();
+    }
+    
     localStorage.setItem(
       'candidate-progress',
       JSON.stringify({
@@ -134,19 +248,7 @@ export class CandidateWizardComponent implements OnInit {
       return;
     }
 
-    const countryObj = this.countries.find(c => c.id == this.form2.value.country);
-    const stateObj = this.states.find(s => s.id == this.form2.value.state);
-    const cityObj = this.cities.find(c => c.id == this.form2.value.city);
-
-    this.preview = {
-      ...this.form1.value,
-      ...this.form2.value,
-      country_name: countryObj?.country_name || '',
-      state_name: stateObj?.state_name || '',
-      city_name: cityObj?.city_name || '',
-      image: this.preview.image || null
-    };
-
+    this.updatePreviewWithNames();
     this.step = 3;
     this.saveProgress();
   }
@@ -165,6 +267,7 @@ export class CandidateWizardComponent implements OnInit {
     if (id) {
       this.loc.states(id).subscribe(res => this.states = res);
     }
+    this.saveProgress();
   }
 
   onStateChange(event: Event): void {
@@ -174,6 +277,7 @@ export class CandidateWizardComponent implements OnInit {
     if (id) {
       this.loc.cities(id).subscribe(res => this.cities = res);
     }
+    this.saveProgress();
   }
 
   /** File upload */
@@ -193,39 +297,54 @@ export class CandidateWizardComponent implements OnInit {
     }
   }
 
-  /** Submit (create or update via /store) */
-  submit(): void {
-    if (!this.orgId) {
-      this.msg = 'Organization ID missing';
-      return;
-    }
-
-    const fd = new FormData();
-    fd.append('org_id', String(this.orgId));
-
-    Object.entries(this.form1.value).forEach(([k, v]) => fd.append(k, String(v ?? '')));
-    Object.entries(this.form2.value).forEach(([k, v]) => {
-      if (k === 'img' && v) {
-        fd.append('img', v as any);
-      } else {
-        fd.append(k, String(v ?? ''));
-      }
-    });
-
-    this.candidateSvc.createOrUpdate(fd).subscribe({
-      next: () => {
-        this.submitted = true;
-        this.msg = this.existingCandidate
-          ? 'Candidate updated successfully'
-          : 'Candidate created successfully';
-        localStorage.removeItem('candidate-progress');
-      },
-      error: (err: any) => {
-        this.submitted = true;
-        this.msg = err?.error?.message || 'Failed to save candidate';
-      }
-    });
+  /** Handle image loading errors */
+  handleImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.style.display = 'none';
   }
+
+  /** Submit (create or update via /store) */
+ // In your submit method, update the preview image with the response URL
+submit(): void {
+  if (!this.orgId) {
+    this.msg = 'Organization ID missing';
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append('org_id', String(this.orgId));
+
+  Object.entries(this.form1.value).forEach(([k, v]) => fd.append(k, String(v ?? '')));
+  Object.entries(this.form2.value).forEach(([k, v]) => {
+    if (k === 'img' && v) {
+      fd.append('img', v as any);
+    } else {
+      fd.append(k, String(v ?? ''));
+    }
+  });
+
+  this.candidateSvc.createOrUpdate(fd).subscribe({
+    next: (response: any) => {
+      this.submitted = true;
+      this.msg = this.existingCandidate
+        ? 'Candidate updated successfully'
+        : 'Candidate created successfully';
+      
+      // Update the existing candidate with the response data
+      if (response.candidate) {
+        this.existingCandidate = response.candidate;
+        // Use the full image URL from the server response
+        this.preview.image = response.candidate.img_url;
+      }
+      
+      localStorage.removeItem('candidate-progress');
+    },
+    error: (err: any) => {
+      this.submitted = true;
+      this.msg = err?.error?.message || 'Failed to save candidate';
+    }
+  });
+}
 
   /** Getters */
   get f1() { return this.form1.controls; }

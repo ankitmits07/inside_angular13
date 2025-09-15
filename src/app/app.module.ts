@@ -11,6 +11,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { HomeComponent } from './components/home/home.component';
 import { CandidateWizardComponent } from './components/candidate-wizard/candidate-wizard.component';
 import { TimesheetComponent } from './components/timesheet/timesheet.component';
+import { UserFormComponent } from './components/user-form/user-form.component';
 
 @NgModule({
   declarations: [
@@ -22,8 +23,7 @@ import { TimesheetComponent } from './components/timesheet/timesheet.component';
     HomeComponent,
     CandidateWizardComponent,
     TimesheetComponent,
-    
-   
+    UserFormComponent
   ],
   imports: [
     BrowserModule,
@@ -31,7 +31,6 @@ import { TimesheetComponent } from './components/timesheet/timesheet.component';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule
-
   ],
   providers: [],
   bootstrap: [AppComponent]

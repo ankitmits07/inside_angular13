@@ -31,7 +31,7 @@
          }"
          (mouseenter)="hoverDate(day)"
          (mouseleave)="hoverDate(null)"
-         [title]="day.log && canHover(day.date) ? 'Org: ' + day.log.org_name + '\nLogin: ' + day.log.login_time : ''"
+         [title]="day.log && canHover(day.date) ? 'Org: ' + day.log.org_id + '\nLogin: ' + day.log.login_time : ''"
          style="width: calc(100%/7 - 4px); padding: 10px; font-size: 14px; cursor: pointer;">
 
       {{ isValidDate(day.date) ? day.date.getDate() : '' }}
@@ -44,15 +44,24 @@
   </div>
 
   <!-- Footer Info -->
-  <div class="calendar-footer text-center mt-3 p-2 border rounded bg-light" style="font-size: 14px;">
-    <ng-container *ngIf="hoveredLog; else hoverDefault">
-      <div><strong>🏢 Org Name:</strong> {{ hoveredLog.org_name }}</div>
-      <div><strong>📅 Login Date:</strong> {{ hoveredLog.login_time }}</div>
-    </ng-container>
-    <ng-template #hoverDefault>
-      <span class="text-muted">✨ Hover over a past/today date to see details</span>
-    </ng-template>
-  </div>
+<div class="calendar-footer text-center mt-3 p-2 border rounded bg-light" style="font-size: 14px;">
+  <ng-container *ngIf="hoveredLog; else hoverDefault">
+    <div><strong>🏢 Org ID:</strong> {{ hoveredLog.org_id }}</div>
+    <div><strong>📅 Login Time:</strong> {{ hoveredLog.login_time | date:'medium' }}</div>
+    <div><strong>🚪 Logout Time:</strong> {{ hoveredLog.logout_time | date:'medium' }}</div>
+    <div><small class="text-muted">Calendar ID: {{ hoveredLog.calendar_id }}</small></div>
+  </ng-container>
+  <ng-template #hoverDefault>
+    <div class="text-muted">
+      <div>✨ Hover over a past/today date to see details</div>
+      <div *ngIf="hasLoginRecords === false" class="text-warning small mt-1">
+        No login records found for your organization
+      </div>
+    </div>
+  </ng-template>
+</div>
+
+
 
   <!-- Navigation Button -->
   <div class="d-flex justify-content-center mt-3">

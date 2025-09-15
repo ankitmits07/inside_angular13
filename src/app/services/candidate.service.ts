@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CandidateService {
@@ -9,22 +10,22 @@ export class CandidateService {
 
   constructor(private http: HttpClient) {}
 
-  /** Create candidate */
-  create(fd: FormData) {
+ 
+  createOrUpdate(fd: FormData): Observable<any> {
     return this.http.post<any>(`${this.base}/store`, fd);
   }
 
-  /** Optional helper: fetch all candidates */
-  getAll() {
+
+  getByOrg(orgId: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/byOrg/${orgId}`);
+  }
+
+  getAll(): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/all`);
   }
-  getByOrg(orgId: number) {
-  return this.http.get<any>(`${this.base}/byOrg/${orgId}`);
-}
-
-createOrUpdate(data: FormData) {
-  return this.http.post<any>(`${environment.apiUrl}/candidate/store`, data);
-}
 
 
+  update(id: number, fd: FormData): Observable<any> {
+    return this.http.post<any>(`${this.base}/update/${id}`, fd);
+  }
 }

@@ -1,0 +1,14 @@
+/* keep things compact and avoid vertical centering that caused scrolling */
+.card {
+  margin-top: 12px;
+}
+
+/* make invalid feedback visible as we are not using Angular validators but showing backend messages */
+.invalid-feedback.d-block {
+  display: block;
+}
+
+/* responsive tweaks */
+@media (max-width: 768px) {
+  .card { padding: 1rem; }
+}

@@ -44,28 +44,40 @@ export class LoginComponent {
     }
 
     this.auth.login(this.form.value).subscribe({
-      next: (res) => {
-        if (res.status === 'success') {
-          this.auth.setAuth(res);
-          this.isLoggedIn = true;
+    next: (res) => {
+      if (res.status === 'success') {
+        this.auth.setAuth(res);
+        this.isLoggedIn = true;
 
-          // Log login in calendar_log table and save calendar_id for logout
-          this.auth.logLogin(res.id).subscribe((log) => {
-            if (log && log.calendar_id) {
-              localStorage.setItem('calendar_id', log.calendar_id.toString());
+        console.log('Login successful, organization ID:', res.id);
+
+        // Log login in calendar_log table
+        this.auth.logLogin(res.id).subscribe({
+          next: (logResponse) => {
+            console.log('Calendar log response:', logResponse);
+            
+            if (logResponse && logResponse.calendar_id) {
+              localStorage.setItem('calendar_id', logResponse.calendar_id.toString());
+              console.log('Calendar ID stored:', logResponse.calendar_id);
+            } else {
+              console.error('No calendar_id in response:', logResponse);
             }
-          });
+          },
+          error: (logError) => {
+            console.error('Error logging calendar entry:', logError);
+          }
+        });
 
-          this.router.navigate(['/home']);
-        } else {
-          this.error = res.message || 'Login failed';
-        }
-      },
-      error: (err) => {
-        this.error = err.error?.message || 'Login failed';
+        this.router.navigate(['/home']);
+      } else {
+        this.error = res.message || 'Login failed';
       }
-    });
-  }
+    },
+    error: (err) => {
+      this.error = err.error?.message || 'Login failed';
+    }
+  });
+}
 
   //Prevent tab close / refresh if logged in
   @HostListener('window:beforeunload', ['$event'])

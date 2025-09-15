@@ -21,6 +21,8 @@ export class TimesheetComponent implements OnInit {
   currentMonth = new Date().getMonth();
   minYear = this.currentYear - 1;
   maxYear = this.currentYear + 1;
+  hasLoginRecords: boolean | null = null;
+  
 
   months = [
     'January','February','March','April','May','June',
@@ -30,7 +32,7 @@ export class TimesheetComponent implements OnInit {
 
   tasks: Task[] = [];
   filteredTasks: Task[] = [];
-  orgId = 3;
+  orgId = 4;
   form: FormGroup;
 
   // Add statusTypes property
@@ -51,6 +53,8 @@ export class TimesheetComponent implements OnInit {
   ngOnInit() {
     this.generateMonth();
     this.loadTasks();
+     this.checkLoginRecords();
+       this.debugDateComparisons();
   }
 
   /** ---------------- Calendar ---------------- */
@@ -88,50 +92,105 @@ export class TimesheetComponent implements OnInit {
 
   isValidDate(date: Date) { return !isNaN(date.getTime()); }
 
-  canHover(date: Date): boolean {
-    if (!this.isValidDate(date)) return false;
-    const today = new Date(); today.setHours(0,0,0,0);
-    return date.getTime() <= today.getTime();
-  }
+canHover(date: Date): boolean {
+  if (!this.isValidDate(date)) return false;
+  
+  const today = new Date();
+  const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const compareDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  
+  return compareDate <= todayLocal;
+}
 
   /** ---------------- Hover ---------------- */
-  hoverDate(day: MonthDay | null) {
-    if (!day || !this.canHover(day.date)) {
-      this.hoveredLog = null;
-      return;
-    }
+// In your TimesheetComponent
 
-    const hoverDateStr = day.date.toISOString().split('T')[0];
-    console.log('Hovering on date:', hoverDateStr);
-
-    // Fetch only latest log for the org
-    this.timesheet.getOrgLogins(this.orgId).subscribe(
-      latestLog => {
-        console.log('Fetched latest log:', latestLog);
-
-        if (!latestLog || !latestLog.login_time) {
-          this.hoveredLog = null;
-          return;
-        }
-
-        const logDateStr = new Date(latestLog.login_time).toISOString().split('T')[0];
-
-        // Show log only if hovered date matches log date
-        this.hoveredLog = (hoverDateStr === logDateStr) ? latestLog : null;
-
-        if (this.hoveredLog) {
-          console.log('Hovered log matches:', this.hoveredLog);
-        } else {
-          console.log('No log for hovered date');
-        }
-      },
-      error => {
-        console.error('Error fetching latest log:', error);
-        this.hoveredLog = null;
-      }
-    );
+hoverDate(day: MonthDay | null) {
+  if (!day || !this.isValidDate(day.date)) {
+    this.hoveredLog = null;
+    return;
   }
 
+  const hoverDate = day.date;
+  const hoverDateStr = this.formatDateToYMD(hoverDate);
+  console.log('Hovering on date:', hoverDateStr);
+  console.log('Using orgId:', this.orgId);
+
+  if (!this.canHover(hoverDate)) {
+    console.log('Cannot hover on this date (future date)');
+    this.hoveredLog = null;
+    return;
+  }
+
+  this.timesheet.getOrgLogins(this.orgId).subscribe(
+    (response: any) => {
+      console.log('API response:', response);
+      
+      // Handle both object and array responses
+      let logs = [];
+      
+      if (Array.isArray(response)) {
+        // If it's an array, use it directly
+        logs = response;
+        console.log('Response is an array, length:', logs.length);
+      } else if (response && typeof response === 'object') {
+        // If it's an object, wrap it in an array
+        logs = [response];
+        console.log('Response is an object, wrapping in array');
+      } else {
+        // If it's null, undefined, or other unexpected type
+        console.log('Unexpected response type:', typeof response);
+        logs = [];
+      }
+
+      console.log('Processed logs:', logs);
+
+      if (logs.length === 0) {
+        console.log('No login records found');
+        this.hoveredLog = null;
+        return;
+      }
+
+      // Find logs that match the hovered date
+      const matchingLogs = logs.filter(log => {
+        if (log && log.login_time) {
+          const logDate = new Date(log.login_time);
+          const logDateStr = this.formatDateToYMD(logDate);
+          const isMatch = logDateStr === hoverDateStr;
+          console.log('Comparing:', logDateStr, '===', hoverDateStr, '=', isMatch);
+          return isMatch;
+        }
+        return false;
+      });
+
+      console.log('Matching logs found:', matchingLogs.length);
+
+      if (matchingLogs.length > 0) {
+        // Get the most recent log
+        this.hoveredLog = matchingLogs.reduce((latest, current) => {
+          return new Date(current.login_time) > new Date(latest.login_time) ? current : latest;
+        }, matchingLogs[0]);
+        
+        console.log('✅ Hover log selected:', this.hoveredLog);
+      } else {
+        console.log('❌ No logs found for the hovered date');
+        this.hoveredLog = null;
+      }
+    },
+    error => {
+      console.error('Error fetching login records:', error);
+      this.hoveredLog = null;
+    }
+  );
+}
+// Helper method to format date as YYYY-MM-DD (ignores timezone)
+formatDateToYMD(date: Date): string {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  
+  return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+}
   /** ---------------- Tasks ---------------- */
 
   loadTasks() {
@@ -293,4 +352,101 @@ export class TimesheetComponent implements OnInit {
   trackByTaskId(index: number, task: Task): number {
     return task.id || index;
   }
+  debugApiCall() {
+  this.timesheet.getOrgLogins(this.orgId).subscribe(
+    (response: any) => {
+      console.log('DEBUG - API Response:', response);
+      console.log('Type:', typeof response);
+      console.log('Is Array:', Array.isArray(response));
+      console.log('Keys:', Object.keys(response));
+    },
+    error => {
+      console.error('DEBUG - API Error:', error);
+    }
+  );
+}
+// In timesheet.component.ts
+checkLoginRecords() {
+  console.log('Checking login records for org_id:', this.orgId);
+  
+  this.timesheet.getOrgLogins(this.orgId).subscribe({
+    next: (response: any) => {
+      console.log('Login records response:', response);
+      console.log('Number of records:', Array.isArray(response) ? response.length : 'Not an array');
+      
+      if (Array.isArray(response) && response.length > 0) {
+        console.log('Latest login record:', response[0]);
+      }
+    },
+    error: (error) => {
+      console.error('Error checking login records:', error);
+    }
+  });
+}
+
+// Add this method to debug date comparisons
+debugDateComparisons() {
+  console.log('=== DEBUG DATE COMPARISONS ===');
+  
+  // Test with the actual response from your API
+  const testLog = {
+    "calendar_id": "6",
+    "org_id": "4",
+    "login_time": "2025-09-13 06:38:00",
+    "logout_time": "2025-09-13 06:38:00"
+  };
+  
+  console.log('Test log:', testLog);
+  
+  const utcDate = new Date(testLog.login_time);
+  console.log('UTC date from DB:', utcDate.toUTCString());
+  console.log('Local date:', utcDate.toString());
+  console.log('Formatted YMD:', this.formatDateToYMD(utcDate));
+  
+  // Simulate hover on Sept 13
+  const sept13 = new Date(2025, 8, 13); // Month is 0-based (8 = September)
+  console.log('Hover date (Sept 13):', this.formatDateToYMD(sept13));
+  
+  const isMatch = this.formatDateToYMD(utcDate) === this.formatDateToYMD(sept13);
+  console.log('Dates match:', isMatch);
+  
+  if (isMatch) {
+    console.log('✅ Hover should work for September 13th!');
+  } else {
+    console.log('❌ Hover will not work - dates dont match');
+  }
+}
+// Call this in ngOnInit to test
+checkAllLogins() {
+  console.log('=== CHECKING ALL LOGIN RECORDS ===');
+  console.log('Requesting logs for orgId:', this.orgId);
+  
+  this.timesheet.getOrgLogins(this.orgId).subscribe({
+    next: (response: any) => {
+      console.log('API Response:', response);
+      console.log('Response type:', typeof response);
+      console.log('Is array:', Array.isArray(response));
+      
+      // Handle both object and array responses
+      if (Array.isArray(response)) {
+        console.log('Array length:', response.length);
+        if (response.length === 0) {
+          console.log('Empty array returned');
+        } else {
+          console.log('Records found in array');
+        }
+      } else if (response && typeof response === 'object') {
+        console.log('Single object returned:', response);
+        console.log('Calendar ID:', response.calendar_id);
+        console.log('Login Time:', response.login_time);
+      } else {
+        console.log('Unexpected response type');
+      }
+    },
+    error: (error) => {
+      console.error('Error checking login records:', error);
+    }
+  });
+}
+
 }
