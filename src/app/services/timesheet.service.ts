@@ -7,6 +7,7 @@ export interface Log {
   org_id: number;
   login_time: string;
   logout_time?: string;
+  org_name?: string;
 }
 
 export interface Task {
@@ -35,9 +36,10 @@ export class TimesheetService {
     return this.http.put(`${this.baseUrl}/calendar-log/logout/${id}`, {});
   }
 
-  getOrgLogins(orgId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/calendar-log/latest/${orgId}`);
-  }
+getOrgLogins(orgId: number): Observable<Log[]> {
+  return this.http.get<Log[]>(`${this.baseUrl}/timesheet/orgLogins/${orgId}`);
+}
+
 
   // Task methods
   getTasks(): Observable<Task[]> {

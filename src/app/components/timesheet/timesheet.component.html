@@ -84,35 +84,41 @@
   </div>
 
   <!-- Footer Info -->
-  <div
-    class="calendar-footer text-center mt-3 p-2 border rounded bg-light"
-    style="font-size: 14px"
-  >
-    <ng-container *ngIf="hoveredLog; else hoverDefault">
-      <div><strong>🏢 Org ID:</strong> {{ hoveredLog.org_id }}</div>
+<div
+  class="calendar-footer text-center mt-3 p-2 border rounded bg-light"
+  style="font-size: 14px"
+>
+  <ng-container *ngIf="hoveredLogs.length > 0; else hoverDefault">
+    
+    <!-- Print org name once -->
+    <div class="mb-2">
+      <strong>🏢 Organization:</strong> {{ hoveredLogs[0].org_name }}
+    </div>
+
+    <!-- Print login/logout times -->
+    <div *ngFor="let log of hoveredLogs">
       <div>
         <strong>📅 Login Time:</strong>
-        {{ hoveredLog.login_time | date : "medium" }}
+        {{ log.login_time | date : "medium" }}
       </div>
-      <div>
+      <div *ngIf="log.logout_time">
         <strong>🚪 Logout Time:</strong>
-        {{ hoveredLog.logout_time | date : "medium" }}
+        {{ log.logout_time | date : "medium" }}
       </div>
-      <div>
-        <small class="text-muted"
-          >Calendar ID: {{ hoveredLog.calendar_id }}</small
-        >
+      <hr />
+    </div>
+
+  </ng-container>
+
+  <ng-template #hoverDefault>
+    <div class="text-muted">
+      <div>✨ Hover over a past/today date to see details</div>
+      <div *ngIf="hasLoginRecords === false" class="text-warning small mt-1">
+        No login records found for your organization
       </div>
-    </ng-container>
-    <ng-template #hoverDefault>
-      <div class="text-muted">
-        <div>✨ Hover over a past/today date to see details</div>
-        <div *ngIf="hasLoginRecords === false" class="text-warning small mt-1">
-          No login records found for your organization
-        </div>
-      </div>
-    </ng-template>
-  </div>
+    </div>
+  </ng-template>
+</div>
 
   <!-- Navigation Button -->
   <div class="d-flex justify-content-center mt-3">

@@ -1,7 +1,7 @@
 /* ================= General Container ================= */
 .view-container {
   max-width: 900px;
-  height: 90vh; /* Almost full viewport height */
+  height: 80vh; 
   margin: 20px auto;
   background: #fff;
   border-radius: 12px;
