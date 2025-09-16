@@ -12,7 +12,7 @@ interface MonthDay {
   templateUrl: './timesheet.component.html',
   styleUrls: ['./timesheet.component.css'],
 })
-export class TimesheetComponent implements OnInit {
+export class TimesheetComponent implements OnInit {   
   view: 'calendar' | 'todo' | 'graph' = 'calendar';
   monthDays: MonthDay[] = [];
   hoveredLogs: Log[] = [];

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { UserFormService } from '../../services/user-form.service';
 import { LocationService } from '../../services/location.service';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-user-form',
@@ -172,13 +173,6 @@ export class UserFormComponent implements OnInit {
   }
 
 onSubmit(): void {
-  if (!this.isFormValid()) {
-    this.backendErrors = {
-      general: 'Please complete all required fields before submitting.'
-    };
-    return;
-  }
-
   this.isLoading = true;
   this.resetMessages();
 
@@ -188,7 +182,6 @@ onSubmit(): void {
   formData.append('name', formValues.name || '');
   formData.append('email', formValues.email || '');
   formData.append('password', formValues.password || '');
-
 
   const countryValue = formValues.country ? formValues.country.country_name : '';
   formData.append('country', countryValue);
@@ -215,34 +208,36 @@ onSubmit(): void {
     formData.append('image', this.selectedFile);
   }
 
-    this.userFormService.createUser(formData).subscribe(
-      (response: any) => {
-        this.isLoading = false;
-        if (response?.messages?.success) {
-          this.successMessage = response.messages.success;
-        } else {
-          this.successMessage = 'User created successfully.';
-        }
-        if (response.data) {
-          this.users.push(response.data);
-        }
-        this.resetForm();
-      },
-      (error: any) => {
-        this.isLoading = false;
-        console.error('Form submission error:', error);
-        if (error.error) {
-          this.backendErrors = error.error;
-        } else if (error.message) {
-          this.backendErrors = { general: error.message };
-        } else {
-          this.backendErrors = {
-            general: 'An error occurred. Please try again.'
-          };
-        }
+  this.userFormService.createUser(formData).subscribe(
+    (response: any) => {
+      this.isLoading = false;
+      if (response?.messages?.success) {
+        this.successMessage = response.messages.success;
+      } else {
+        this.successMessage = 'User created successfully.';
       }
-    );
-  }
+      if (response.data) {
+        this.users.push(response.data);
+      }
+      this.resetForm();
+    },
+    (error: any) => {
+      this.isLoading = false;
+      console.error('Form submission error:', error);
+      
+      // Extract validation errors from the messages object
+      if (error.error && error.error.messages) {
+        this.backendErrors = error.error.messages;
+      } else {
+        this.backendErrors = {
+          general: 'An error occurred. Please try again.'
+        };
+      }
+      
+      console.log('Backend errors extracted:', this.backendErrors);
+    }
+  );
+}
 
   private resetForm(): void {
     this.userForm.reset();
@@ -258,9 +253,13 @@ onSubmit(): void {
     ) || false;
   }
 
-  getBackendError(control: string): string | null {
-    return this.backendErrors?.[control] || null;
+getBackendError(control: string): string | null {
+  // Check if the error exists in the messages object and return it
+  if (this.backendErrors && this.backendErrors[control]) {
+    return this.backendErrors[control];
   }
+  return null;
+}
 
   toggleView(): void {
     this.showUserTable = !this.showUserTable;

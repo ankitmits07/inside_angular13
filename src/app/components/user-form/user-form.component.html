@@ -13,15 +13,12 @@
 
       <form [formGroup]="userForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data" novalidate>
         <div class="row g-3">
+
           <!-- Name -->
           <div class="col-md-6">
             <label class="form-label">Name</label>
             <input type="text" formControlName="name" class="form-control"
-                   [class.is-invalid]="hasError('name','required') || hasError('name','minlength') || hasError('name','noSpace') || getBackendError('name')"
-                   placeholder="Enter your name">
-            <div class="invalid-feedback" *ngIf="hasError('name','required')">Name is required</div>
-            <div class="invalid-feedback" *ngIf="hasError('name','minlength')">Name must be at least 3 characters long</div>
-            <div class="invalid-feedback" *ngIf="hasError('name','noSpace')">Name cannot contain spaces</div>
+                   [class.is-invalid]="getBackendError('name')">
             <div class="invalid-feedback" *ngIf="getBackendError('name')">{{ getBackendError('name') }}</div>
           </div>
 
@@ -29,10 +26,7 @@
           <div class="col-md-6">
             <label class="form-label">Email</label>
             <input type="email" formControlName="email" class="form-control"
-                   [class.is-invalid]="hasError('email','required') || hasError('email','email') || getBackendError('email')"
-                   placeholder="Enter your email">
-            <div class="invalid-feedback" *ngIf="hasError('email','required')">Email is required</div>
-            <div class="invalid-feedback" *ngIf="hasError('email','email')">Please enter a valid email address</div>
+                   [class.is-invalid]="getBackendError('email')">
             <div class="invalid-feedback" *ngIf="getBackendError('email')">{{ getBackendError('email') }}</div>
           </div>
 
@@ -40,11 +34,7 @@
           <div class="col-md-6">
             <label class="form-label">Password</label>
             <input type="password" formControlName="password" class="form-control"
-                   [class.is-invalid]="hasError('password','required') || hasError('password','minlength') || hasError('password','strongPassword') || getBackendError('password')"
-                   placeholder="Create a password">
-            <div class="invalid-feedback" *ngIf="hasError('password','required')">Password is required</div>
-            <div class="invalid-feedback" *ngIf="hasError('password','minlength')">At least 8 characters</div>
-            <div class="invalid-feedback" *ngIf="hasError('password','strongPassword')">Must include uppercase, lowercase, number & special char</div>
+                   [class.is-invalid]="getBackendError('password')">
             <div class="invalid-feedback" *ngIf="getBackendError('password')">{{ getBackendError('password') }}</div>
           </div>
 
@@ -52,12 +42,7 @@
           <div class="col-md-6">
             <label class="form-label">Phone</label>
             <input type="text" formControlName="phone" class="form-control"
-                   [class.is-invalid]="hasError('phone','required') || hasError('phone','minlength') || hasError('phone','maxlength') || hasError('phone','pattern') || getBackendError('phone')"
-                   placeholder="Enter phone number">
-            <div class="invalid-feedback" *ngIf="hasError('phone','required')">Phone is required</div>
-            <div class="invalid-feedback" *ngIf="hasError('phone','minlength')">At least 10 digits</div>
-            <div class="invalid-feedback" *ngIf="hasError('phone','maxlength')">Cannot exceed 15 digits</div>
-            <div class="invalid-feedback" *ngIf="hasError('phone','pattern')">Only numbers allowed</div>
+                   [class.is-invalid]="getBackendError('phone')">
             <div class="invalid-feedback" *ngIf="getBackendError('phone')">{{ getBackendError('phone') }}</div>
           </div>
 
@@ -65,11 +50,10 @@
           <div class="col-md-4">
             <label class="form-label">Country</label>
             <select formControlName="country" class="form-control"
-                    [class.is-invalid]="hasError('country','required') || getBackendError('country')">
+                    [class.is-invalid]="getBackendError('country')">
               <option value="">Select Country</option>
               <option *ngFor="let c of countries" [ngValue]="c">{{ c.country_name }}</option>
             </select>
-            <div class="invalid-feedback" *ngIf="hasError('country','required')">Please select a country</div>
             <div class="invalid-feedback" *ngIf="getBackendError('country')">{{ getBackendError('country') }}</div>
           </div>
 
@@ -77,11 +61,10 @@
           <div class="col-md-4">
             <label class="form-label">State</label>
             <select formControlName="state" class="form-control"
-                    [class.is-invalid]="hasError('state','required') || getBackendError('state')">
+                    [class.is-invalid]="getBackendError('state')">
               <option value="">Select State</option>
               <option *ngFor="let s of states" [ngValue]="s">{{ s.state_name }}</option>
             </select>
-            <div class="invalid-feedback" *ngIf="hasError('state','required')">State is required</div>
             <div class="invalid-feedback" *ngIf="getBackendError('state')">{{ getBackendError('state') }}</div>
           </div>
 
@@ -89,12 +72,12 @@
           <div class="col-md-4">
             <label class="form-label">City</label>
             <select *ngIf="cities.length" formControlName="city" class="form-control"
-                    [class.is-invalid]="hasError('city','required') || getBackendError('city')">
+                    [class.is-invalid]="getBackendError('city')">
               <option value="">Select City</option>
               <option *ngFor="let city of cities" [ngValue]="city">{{ city.city_name }}</option>
             </select>
-            <input *ngIf="!cities.length" type="text" formControlName="city" class="form-control" placeholder="Enter city">
-            <div class="invalid-feedback" *ngIf="hasError('city','required')">City is required</div>
+            <input *ngIf="!cities.length" type="text" formControlName="city" class="form-control" placeholder="Enter city"
+                   [class.is-invalid]="getBackendError('city')">
             <div class="invalid-feedback" *ngIf="getBackendError('city')">{{ getBackendError('city') }}</div>
           </div>
 
@@ -102,32 +85,27 @@
           <div class="col-md-6">
             <label class="form-label">Pincode</label>
             <input type="text" formControlName="pincode" class="form-control"
-                   [class.is-invalid]="hasError('pincode','required') || hasError('pincode','pattern') || getBackendError('pincode')"
-                   placeholder="6-digit pincode">
-            <div class="invalid-feedback" *ngIf="hasError('pincode','required')">Pincode is required</div>
-            <div class="invalid-feedback" *ngIf="hasError('pincode','pattern')">Must be 6 digits</div>
+                   [class.is-invalid]="getBackendError('pincode')">
             <div class="invalid-feedback" *ngIf="getBackendError('pincode')">{{ getBackendError('pincode') }}</div>
           </div>
 
           <!-- Image Upload -->
           <div class="col-md-6">
             <label class="form-label">Profile Image (JPG, max 75KB)</label>
-            <input type="file" (change)="onFileSelected($event)" class="form-control" accept=".jpg,.jpeg"
-                   [class.is-invalid]="hasError('image','required') || hasError('image','fileType') || hasError('image','fileSize') || getBackendError('image')">
+            <input type="file" (change)="onFileSelected($event)" class="form-control" accept=".jpg,.jpeg,.png"
+                   [class.is-invalid]="getBackendError('image')">
             <div *ngIf="previewUrl" class="mt-2">
               <img [src]="previewUrl" class="img-thumbnail" style="max-height:150px;">
             </div>
-            <div class="invalid-feedback" *ngIf="hasError('image','required')">Please upload an image</div>
-            <div class="invalid-feedback" *ngIf="hasError('image','fileType')">Only JPG images allowed</div>
-            <div class="invalid-feedback" *ngIf="hasError('image','fileSize')">Max size 75KB</div>
             <div class="invalid-feedback" *ngIf="getBackendError('image')">{{ getBackendError('image') }}</div>
           </div>
+
         </div>
 
         <!-- Submit -->
         <div class="mt-4">
           <button class="btn btn-primary w-100 fw-semibold"
-                  [disabled]="userForm.invalid || isLoading"
+                  [disabled]="isLoading"
                   style="border-radius:0.5rem; font-size:1rem;">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
             {{ isLoading ? 'Submitting...' : 'Register' }}
@@ -158,21 +136,20 @@
             </tr>
           </thead>
           <tbody>
-           <tr *ngFor="let user of users">
-  <td>{{ user.name }}</td>
-  <td>{{ user.email }}</td>
-  <td>{{ user.phone }}</td>
-  <td>{{ user.country }}</td>
-  <td>{{ user.state || 'N/A' }}</td>
-  <td>{{ user.city }}</td>
-  <td>{{ user.pincode }}</td>
-  <td>
-    <img *ngIf="user.image" [src]="apiUrl + '/uploads/' + user.image"
-         class="img-thumbnail" style="max-height:80px;">
-    <span *ngIf="!user.image">No image</span>
-  </td>
-</tr>
-
+            <tr *ngFor="let user of users">
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.phone }}</td>
+              <td>{{ user.country }}</td>
+              <td>{{ user.state || 'N/A' }}</td>
+              <td>{{ user.city }}</td>
+              <td>{{ user.pincode }}</td>
+              <td>
+                <img *ngIf="user.image" [src]="apiUrl + '/uploads/' + user.image"
+                     class="img-thumbnail" style="max-height:80px;">
+                <span *ngIf="!user.image">No image</span>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>

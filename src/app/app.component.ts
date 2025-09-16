@@ -9,14 +9,13 @@ import { AuthService } from './services/auth.service';
 export class AppComponent {
   title = 'project1_ci4';
 
-  constructor(private auth: AuthService) {}
+  constructor(public auth: AuthService) {}
 
-  // 🚨 Prevent tab close / refresh if logged in
   @HostListener('window:beforeunload', ['$event'])
   handleBeforeUnload(event: BeforeUnloadEvent) {
     if (this.auth.isLoggedIn()) {
       event.preventDefault();
-      event.returnValue = '⚠️ You are still logged in. Please logout first!';
+      event.returnValue = true; // Triggers generic browser warning
     }
   }
 }
